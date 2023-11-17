@@ -1982,6 +1982,24 @@ class TestWriteFiles(FileIOTestCase):
         parm2 = readparm.AmberParm(self.get_fn('trx.prmtop', written=True))
         self.assertIn('NEW_FLAG', parm2.parm_data)
 
+
+    def test_write_amber_mdl(self):
+        """ Test writing an AmberParm mdl file """
+        reference = readparm.AmberFormat(self.get_fn('cSPCE.mdl'))
+        parm = readparm.LoadParm(self.get_fn('cSPCE.parm7'), self.get_fn('cSPCE.rst7'))
+        parm.write_mdl(self.get_fn('cSPCE.prmtop', written=True))
+        f1 = open(self.get_fn('cSPCE.prmtop'), 'r')
+        f2 = open(self.get_fn('cSPCE.prmtop', written=True), 'r')
+        try:
+            for line1, line2 in zip(f1, f2):
+                if line1.startswith('%VERSION'):
+                    #self.assertTrue(line2.startswith('%VERSION'))
+                    continue
+                self.assertEqual(line1.strip(), line2.strip())
+        finally:
+            f1.close()
+            f2.close()
+
     def test_write_pdb_with_LES_parm(self):
         """ Tests writing a PDB file with a parm created with LES in mind """
         output = StringIO()

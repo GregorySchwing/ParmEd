@@ -639,6 +639,43 @@ class AmberParm(AmberFormat, Structure):
 
     #===================================================
 
+    def write_mdl(self, name):
+        """
+        Writes the current data in parm_data into a mdl (1D-RISM) file with a given name.
+
+        Parameters
+        ----------
+        name : str or file-like
+            The name of the file to write the prmtop to or the file object to write to
+        """
+
+        if (self.coordinates is None):
+            raise AmberError('Mdl files require atomic coordinates!')
+        
+        self.remake_parm()
+        
+        get_name = lambda ltype: next(atom.name for atom in self.atoms if atom.type == ltype)
+        get_mass = lambda ltype: next(atom.mass for atom in self.atoms if atom.type == ltype)
+        get_charge = lambda ltype: next(atom.charge for atom in self.atoms if atom.type == ltype)
+        get_multi = lambda ltype: sum(1 for atom in self.atoms if atom.type == ltype)
+
+        emptyMDL = AmberFormat()
+        emptyMDL.charge_flag="CHG"
+        emptyMDL.add_flag(flag_name='TITLE',flag_format='20a4',data=self.parm_data['TITLE'])
+        emptyMDL.add_flag(flag_name='POINTERS',flag_format='10I8',data=[self.pointers['NATOM'],self.pointers['NTYPES']])
+        emptyMDL.add_flag(flag_name='ATMTYP',flag_format='10I8',data=[value for value in self.LJ_types.values()])
+        emptyMDL.add_flag(flag_name='ATMNAME',flag_format='20a4',data=[get_name(ltype) for ltype in self.LJ_types.keys()])
+        emptyMDL.add_flag(flag_name='MASS',flag_format='5E16.8',data=[get_mass(ltype) for ltype in self.LJ_types.keys()])
+        emptyMDL.add_flag(flag_name='CHG',flag_format='5E16.8',data=[get_charge(ltype) for ltype in self.LJ_types.keys()])
+        emptyMDL.add_flag(flag_name='LJEPSILON',flag_format='5E16.8',data=[self.LJ_depth[value-1] for value in self.LJ_types.values()])
+        emptyMDL.add_flag(flag_name='LJSIGMA',flag_format='5E16.8',data=[self.LJ_radius[value-1] for value in self.LJ_types.values()])
+        emptyMDL.add_flag(flag_name='MULTI',flag_format='10I8',data=[get_multi(ltype) for ltype in self.LJ_types.keys()])
+        emptyMDL.add_flag(flag_name='COORD',flag_format='5E16.8',data=np.concatenate(list(np.array(item).flatten() for item in self.get_coordinates())))
+
+        emptyMDL.write_parm(name)
+
+    #===================================================
+
     def remake_parm(self):
         """
         Fills :attr:`parm_data` from the data in the parameter and topology
