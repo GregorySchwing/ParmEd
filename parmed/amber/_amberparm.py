@@ -654,9 +654,6 @@ class AmberParm(AmberFormat, Structure):
         
         self.remake_parm()
         
-        get_name = lambda ltype: next(self.parm_data['ATOM_NAME'][type_index-1] for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
-        get_mass = lambda ltype: next(self.parm_data['MASS'][type_index-1] for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
-        get_charge = lambda ltype: next(self.parm_data['CHARGE'][type_index-1] for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
         get_multi = lambda ltype: sum(1 for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
 
         # Remove duplicate values in dictionary
@@ -669,12 +666,12 @@ class AmberParm(AmberFormat, Structure):
         emptyMDL.add_flag(flag_name='TITLE',flag_format='20a4',data=self.parm_data['TITLE'])
         emptyMDL.add_flag(flag_name='POINTERS',flag_format='10I8',data=[self.pointers['NATOM'],self.pointers['NTYPES']])
         emptyMDL.add_flag(flag_name='ATMTYP',flag_format='10I8',data=[value for value in reduced_LJ_types.values()])
-        emptyMDL.add_flag(flag_name='ATMNAME',flag_format='20a4',data=[get_name(ltype) for ltype in reduced_LJ_types.keys()])
-        emptyMDL.add_flag(flag_name='MASS',flag_format='5E16.8',data=[get_mass(ltype) for ltype in reduced_LJ_types.keys()])
-        emptyMDL.add_flag(flag_name='CHG',flag_format='5E16.8',data=[get_charge(ltype) for ltype in reduced_LJ_types.keys()])
-        emptyMDL.add_flag(flag_name='LJEPSILON',flag_format='5E16.8',data=[self.LJ_depth[value-1] for value in reduced_LJ_types.values()])
-        emptyMDL.add_flag(flag_name='LJSIGMA',flag_format='5E16.8',data=[self.LJ_radius[value-1] for value in reduced_LJ_types.values()])
-        emptyMDL.add_flag(flag_name='MULTI',flag_format='10I8',data=[get_multi(ltype) for ltype in reduced_LJ_types.keys()])
+        emptyMDL.add_flag(flag_name='ATMNAME',flag_format='20a4',data=[self.parm_data['ATOMNAME'][type_index-1] for type_index in reduced_LJ_types.values()])
+        emptyMDL.add_flag(flag_name='MASS',flag_format='5E16.8',data=[self.parm_data['MASS'][type_index-1] for type_index in reduced_LJ_types.values()])
+        emptyMDL.add_flag(flag_name='CHG',flag_format='5E16.8',data=[self.parm_data['CHARGE'][type_index-1] for type_index in reduced_LJ_types.values()])
+        emptyMDL.add_flag(flag_name='LJEPSILON',flag_format='5E16.8',data=[self.LJ_depth[type_index-1] for type_index in reduced_LJ_types.values()])
+        emptyMDL.add_flag(flag_name='LJSIGMA',flag_format='5E16.8',data=[self.LJ_radius[type_index-1] for type_index in reduced_LJ_types.values()])
+        emptyMDL.add_flag(flag_name='MULTI',flag_format='10I8',data=[get_multi(type_index) for type_index in reduced_LJ_types.keys()])
         emptyMDL.add_flag(flag_name='COORD',flag_format='5E16.8',data=np.concatenate(list(np.array(item).flatten() for item in self.get_coordinates())))
 
         emptyMDL.write_parm(name)
