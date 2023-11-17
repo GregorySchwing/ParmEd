@@ -671,7 +671,7 @@ class AmberParm(AmberFormat, Structure):
         emptyMDL.add_flag(flag_name='CHG',flag_format='5E16.8',data=[self.parm_data['CHARGE'][indexed_from_one-1] for indexed_from_one in reduced_LJ_types.values()])
         emptyMDL.add_flag(flag_name='LJEPSILON',flag_format='5E16.8',data=[self.LJ_depth[indexed_from_one-1] for indexed_from_one in reduced_LJ_types.values()])
         emptyMDL.add_flag(flag_name='LJSIGMA',flag_format='5E16.8',data=[self.LJ_radius[indexed_from_one-1] for indexed_from_one in reduced_LJ_types.values()])
-        emptyMDL.add_flag(flag_name='MULTI',flag_format='10I8',data=[get_multi(indexed_from_one) for indexed_from_one in reduced_LJ_types.keys()])
+        emptyMDL.add_flag(flag_name='MULTI',flag_format='10I8',data=[get_multi(indexed_from_one) for indexed_from_one in reduced_LJ_types.values()])
         emptyMDL.add_flag(flag_name='COORD',flag_format='5E16.8',data=np.concatenate(list(np.array(item).flatten() for item in self.get_coordinates())))
 
         emptyMDL.write_parm(name)
