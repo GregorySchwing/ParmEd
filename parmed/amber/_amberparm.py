@@ -654,10 +654,10 @@ class AmberParm(AmberFormat, Structure):
         
         self.remake_parm()
         
-        get_name = lambda ltype: next(atom.name for atom in self.atoms if atom.type == ltype)
-        get_mass = lambda ltype: next(atom.mass for atom in self.atoms if atom.type == ltype)
-        get_charge = lambda ltype: next(atom.charge for atom in self.atoms if atom.type == ltype)
-        get_multi = lambda ltype: sum(1 for atom in self.atoms if atom.type == ltype)
+        get_name = lambda ltype: next(self.parm_data['ATOM_NAME'][type_index-1] for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
+        get_mass = lambda ltype: next(self.parm_data['MASS'][type_index-1] for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
+        get_charge = lambda ltype: next(self.parm_data['CHARGE'][type_index-1] for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
+        get_multi = lambda ltype: sum(1 for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
 
         # Remove duplicate values in dictionary
         # Using dictionary comprehension
