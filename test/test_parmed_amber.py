@@ -1982,12 +1982,8 @@ class TestWriteFiles(FileIOTestCase):
         parm2 = readparm.AmberParm(self.get_fn('trx.prmtop', written=True))
         self.assertIn('NEW_FLAG', parm2.parm_data)
 
-    @unittest.skipIf(os.getenv('AMBERHOME') is None, 'Cannot test w/out Amber')
     def test_write_amber_mdl(self):
         """ Test writing an AmberParm mdl file """
-        filestring = str(os.path.join(os.getenv('AMBERHOME'), 'dat', 'rism1d', 'mdl', 'cSPCE.mdl'))
-        print("filestring",filestring)
-        reference = readparm.AmberFormat(filestring)
         parm = readparm.LoadParm(self.get_fn('cSPCE.parm7'), self.get_fn('cSPCE.rst7'))
         parm.write_mdl(self.get_fn('cSPCE.mdl', written=True))
         f1 = open(self.get_fn('cSPCE.mdl'), 'r')
@@ -1995,9 +1991,9 @@ class TestWriteFiles(FileIOTestCase):
         try:
             for line1, line2 in zip(f1, f2):
                 if line1.startswith('%VERSION'):
-                    #self.assertTrue(line2.startswith('%VERSION'))
                     continue
-                self.assertEqual(line1.strip().casefold(), line2.strip().casefold())
+                self.assertEqual(line1.strip(), line2.strip())
+
         finally:
             f1.close()
             f2.close()
