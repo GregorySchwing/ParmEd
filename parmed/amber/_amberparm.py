@@ -655,6 +655,9 @@ class AmberParm(AmberFormat, Structure):
         self.remake_parm()
         
         get_multi = lambda ltype: sum(1 for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
+        type_to_name = lambda types: [self.parm_data['ATOM_NAME'][i] for i, t in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if t in types]
+        type_to_charge = lambda types: [self.parm_data['CHARGE'][i] for i, t in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if t in types]
+        type_to_mass = lambda types: [self.parm_data['MASS'][i] for i, t in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if t in types]
 
         # Remove duplicate values in dictionary
         # Using dictionary comprehension
@@ -666,9 +669,9 @@ class AmberParm(AmberFormat, Structure):
         emptyMDL.add_flag(flag_name='TITLE',flag_format='20a4',data=self.parm_data['TITLE'])
         emptyMDL.add_flag(flag_name='POINTERS',flag_format='10I8',data=[self.pointers['NATOM'],self.pointers['NTYPES']])
         emptyMDL.add_flag(flag_name='ATMTYP',flag_format='10I8',data=[indexed_from_one for indexed_from_one in reduced_LJ_types.values()])
-        emptyMDL.add_flag(flag_name='ATMNAME',flag_format='20a4',data=[self.parm_data['ATOM_NAME'][indexed_from_one-1] for indexed_from_one in reduced_LJ_types.values()])
-        emptyMDL.add_flag(flag_name='MASS',flag_format='5E16.8',data=[self.parm_data['MASS'][indexed_from_one-1] for indexed_from_one in reduced_LJ_types.values()])
-        emptyMDL.add_flag(flag_name='CHG',flag_format='5E16.8',data=[self.parm_data['CHARGE'][indexed_from_one-1] for indexed_from_one in reduced_LJ_types.values()])
+        emptyMDL.add_flag(flag_name='ATMNAME',flag_format='20a4',data=type_to_name(reduced_LJ_types.values()))
+        emptyMDL.add_flag(flag_name='MASS',flag_format='5E16.8',data=type_to_mass(reduced_LJ_types.values()))
+        emptyMDL.add_flag(flag_name='CHG',flag_format='5E16.8',data=type_to_charge(reduced_LJ_types.values()))
         emptyMDL.add_flag(flag_name='LJEPSILON',flag_format='5E16.8',data=[self.LJ_depth[indexed_from_one-1] for indexed_from_one in reduced_LJ_types.values()])
         emptyMDL.add_flag(flag_name='LJSIGMA',flag_format='5E16.8',data=[self.LJ_radius[indexed_from_one-1] for indexed_from_one in reduced_LJ_types.values()])
         emptyMDL.add_flag(flag_name='MULTI',flag_format='10I8',data=[get_multi(indexed_from_one) for indexed_from_one in reduced_LJ_types.values()])
