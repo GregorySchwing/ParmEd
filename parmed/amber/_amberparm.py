@@ -655,9 +655,9 @@ class AmberParm(AmberFormat, Structure):
         self.remake_parm()
         
         get_multi = lambda ltype: sum(1 for type_index in self.parm_data['ATOM_TYPE_INDEX'] if type_index == ltype)
-        type_to_name = lambda types: [self.parm_data['ATOM_NAME'][i] for i, t in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if t in types]
-        type_to_charge = lambda types: [self.parm_data['CHARGE'][i] for i, t in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if t in types]
-        type_to_mass = lambda types: [self.parm_data['MASS'][i] for i, t in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if t in types]
+        type_to_name = lambda types: [self.parm_data['ATOM_NAME'][i] for t in types if (i := next((index for index, atom_type in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if atom_type == t), None)) is not None]
+        type_to_charge = lambda types: [self.parm_data['CHARGE'][i] for t in types if (i := next((index for index, atom_type in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if atom_type == t), None)) is not None]
+        type_to_mass = lambda types: [self.parm_data['MASS'][i] for t in types if (i := next((index for index, atom_type in enumerate(self.parm_data['ATOM_TYPE_INDEX']) if atom_type == t), None)) is not None]
 
         # Remove duplicate values in dictionary
         # Using dictionary comprehension
